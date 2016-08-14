@@ -16,4 +16,3 @@ wiki_df = spark.createDataFrame(wiki_ds)
 wiki_df.createTempView("wiki_view")
 
 spark.sql("SELECT * FROM wiki_view LIMIT 10").collect()
-
