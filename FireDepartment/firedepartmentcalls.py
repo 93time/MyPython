@@ -5,7 +5,7 @@ data_path = "/Users/Jason/Documents/Python/Data/FireDepartmentCalls"
 work_path = "/Users/Jason/Documents/Python/MyPython/FireDepartment"
 sys.path.append(work_path)
 
-from pyspark import SparkSession
+from pyspark.sql import SparkSession
 import data_schema
 
 
@@ -46,6 +46,8 @@ spark.sql("SELECT DISTINCT YEAR(CAST(unix_timestamp(responseDtTm, 'MM/dd/yyyy hh
 
 spark.sql("SELECT COUNT(*) FROM fireDepartmentCalls WHERE TO_DATE(CAST(unix_timestamp(responseDtTm, 'MM/dd/yyyy hh:mm:ss') as timestamp)) BETWEEN '2016-07-01' AND '2016-07-10'").show()
 
+
+
 input_df = input_df.withColumn("responseYYMMDD", unix_timestamp(input_df["responseDtTm"], "MM/dd/yyyy").cast("timestamp"))
 input_df.select(["responseDtTm", "responseYYMMDD"]).limit(10).show()
 
@@ -56,4 +58,20 @@ spark.sql("SELECT TO_DATE(responseYYMMDD) AS date, COUNT(*) FROM fireDepartmentC
 
 
 input_df.rdd.getNumPartitions()
-input_df.cache()
+# input_df.cache()
+
+input_df.repartition(6).createOrReplaceTempView("fireDepartmentCalls")
+
+partial_input_data = spark.sql("SELECT CallNumber, CallType, responseYYMMDD FROM fireDepartmentCalls")
+partial_input_data.limit(10).show()
+
+partial_input_data.rdd.getNumPartitions()
+
+partial_input_data.createOrReplaceTempView("partial_input_data_view")
+
+spark.catalog.cacheTable("partial_input_data_view")
+spark.table("partial_input_data_view").count()
+spark.sql("SELECT COUNT(*) FROM partial_input_data_view").show()
+spark.sql("SELECT callType, COUNT(*) FROM partial_input_data_view GROUP BY callType ORDER BY 2 DESC").show()
+
+
