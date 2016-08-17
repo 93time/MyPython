@@ -23,6 +23,8 @@ df.createOrReplaceTempView("db_table")
 df.printSchema()
 
 
+
+
 spark.sql("SELECT * FROM db_table").show()
 
 
