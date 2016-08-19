@@ -65,13 +65,20 @@ input_df.repartition(6).createOrReplaceTempView("fireDepartmentCalls")
 partial_input_data = spark.sql("SELECT CallNumber, CallType, responseYYMMDD FROM fireDepartmentCalls")
 partial_input_data.limit(10).show()
 
+partial_input_data.repartition(6)
 partial_input_data.rdd.getNumPartitions()
 
-partial_input_data.createOrReplaceTempView("partial_input_data_view")
+partial_input_data.repartition(6).createOrReplaceTempView("partial_input_data_view")
+
 
 spark.catalog.cacheTable("partial_input_data_view")
 spark.table("partial_input_data_view").count()
 spark.sql("SELECT COUNT(*) FROM partial_input_data_view").show()
 spark.sql("SELECT callType, COUNT(*) FROM partial_input_data_view GROUP BY callType ORDER BY 2 DESC").show()
+
+spark.conf.get("spark.sql.shuffle.partitions")
+spark.conf.set("spark.sql.shuffle.partitions", 6)
+spark.sql("SELECT callType, COUNT(*) FROM partial_input_data_view GROUP BY callType ORDER BY 2 DESC").show()
+
 
 

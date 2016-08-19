@@ -33,7 +33,7 @@ df = spark.read.format("jdbc").options(
     user="BI_ETL",
     password="ueR5JpUZ3h29EkwA5oov",
     dbtable="dbo._staging_mobile_platform_event_logs"
-    ).load()
+    ).load().where("name = 'jason'")
 
 df.printSchema()
 df.createOrReplaceTempView("db_table")
