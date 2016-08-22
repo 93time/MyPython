@@ -19,4 +19,6 @@ data_df.createOrReplaceTempView("data_df")
 spark.sql("SELECT age, COUNT(*) AS people_count, SUM(friend_count) AS total_friends FROM data_df GROUP BY age").createOrReplaceTempView("DataByAge")
 spark.sql("SELECT age, CAST(total_friends / people_count AS INT) FROM dataByAge ORDER BY 1 DESC").show()
 
-spark.sql("SELECT age, CAST(SUM(friend_count) / COUNT(*) AS INT) FROM data_df GROUP BY age").show()
+spark.sql("""
+SELECT age, CAST(SUM(friend_count) / COUNT(*) AS INT) FROM data_df GROUP BY age
+""").show()
