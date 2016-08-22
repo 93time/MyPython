@@ -13,13 +13,26 @@ spark = SparkSession.builder.master("local[*]").appName("streaming_data").config
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
 
-spark.conf.set("spark.sql.shuffle.partitions", "2")
+# Document: https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html
+
+
+#spark.conf.set("spark.sql.shuffle.partitions", "2")
+spark.conf.set("spark.sql.shuffle.partitions", "13")
 
 inputPath = "/Users/Jason/Documents/Python/Data/StreamingData/"
-jsonSchema = StructType([StructField("time", StringType(), True), StructField("action", StringType(), True)])
+# jsonSchema = StructType([StructField("time", StringType(), True), StructField("action", StringType(), True)])
+jsonSchema = StructType().add("time", "string").add("action", "string")
 
 streamingInputDF = spark.readStream.option("maxFilesPerTrigger", 1).json(inputPath, schema=jsonSchema)
 streamingInputDF.isStreaming
+
+
+streamingInputDFResult = streamingInputDF.groupBy(streamingInputDF.action).count()
+streamingInputDFResult.writeStream.format("console").queryName("count_console").outputMode("complete").start()
+
+# checkpoint
+streamingInputDFResult.writeStream.format("console").queryName("count_console2").outputMode("complete").option("checkpointLocation", work_path).start()
+
 
 # Without aggregated values.
 query = streamingInputDF.writeStream.format("memory").queryName("count_test").start()
@@ -32,6 +45,5 @@ query = streamingCountsDF.writeStream.format("memory").queryName("counts2").outp
 
 spark.sql("select * from counts").show()
 spark.sql("select * from counts2").show()
-
 
 
