@@ -23,7 +23,7 @@ spark.sql("SELECT DISTINCT callType FROM fireDepartmentCalls").show()
 
 input_df.select("callType").distinct().show(50, False)
 
-
+## test
 ## To change String data types to date/time data types
 from pyspark.sql.functions import *
 
